@@ -1,6 +1,7 @@
 use basic_tcp_proxy::TcpProxy;
 
 fn main() {
-    let _proxy = TcpProxy::new(2000, "127.0.0.1:4000".parse().unwrap());
+    log::info!("starting client");
+    let _proxy = TcpProxy::new(9090, "10.200.1.2:9091".parse().unwrap());
     loop {}
 }

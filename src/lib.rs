@@ -1,3 +1,4 @@
+use log::debug;
 use std::io::{BufRead, BufReader, Write};
 use std::net::SocketAddr;
 use std::net::{IpAddr, Ipv4Addr};
@@ -19,19 +20,18 @@ impl TcpProxy {
             listen_port,
         ))?;
 
-        let sender_forward_original = TcpStream::connect(proxy_to)?;
-        let sender_backward_original = sender_forward_original.try_clone()?;
-
         let forward_thread = std::thread::spawn(move || {
             loop {
                 let (stream_forward, _addr) = listener_forward
                     .accept()
                     .expect("Failed to accept connection");
+                debug!("New connection");
+
+                let mut sender_forward = TcpStream::connect(proxy_to).expect("Failed to bind");
+                let sender_backward = sender_forward.try_clone().expect("Failed to clone stream");
                 let mut stream_backward =
                     stream_forward.try_clone().expect("Failed to clone stream");
 
-                let mut sender_forward = sender_forward_original.try_clone().unwrap();
-                let sender_backward = sender_backward_original.try_clone().unwrap();
                 std::thread::spawn(move || {
                     let mut stream_forward = BufReader::new(stream_forward);
                     loop {
@@ -40,6 +40,7 @@ impl TcpProxy {
                             let length = buffer.len();
                             if buffer.is_empty() {
                                 // Connection closed
+                                debug!("Client closed connection");
                                 return;
                             }
                             sender_forward
@@ -60,10 +61,12 @@ impl TcpProxy {
                             let length = buffer.len();
                             if buffer.is_empty() {
                                 // Connection closed
+                                debug!("Remote closed connection");
                                 return;
                             }
                             if stream_backward.write_all(&buffer).is_err() {
                                 // Connection closed
+                                debug!("Client closed connection");
                                 return;
                             }
 
