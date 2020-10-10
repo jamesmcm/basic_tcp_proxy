@@ -2,7 +2,6 @@ use std::io::{BufRead, BufReader, Write};
 use std::net::SocketAddr;
 use std::net::{IpAddr, Ipv4Addr};
 use std::net::{TcpListener, TcpStream};
-use thiserror::Error;
 
 /// TcpProxy runs one thread looping to accept new connections
 /// and then two separate threads per connection for writing to each end
@@ -14,7 +13,7 @@ pub struct TcpProxy {
 impl TcpProxy {
     /// Create a new TCP proxy, binding to listen_port and forwarding and receiving traffic from
     /// proxy_to
-    pub fn new(listen_port: u16, proxy_to: SocketAddr) -> Result<Self, ProxyError> {
+    pub fn new(listen_port: u16, proxy_to: SocketAddr) -> Result<Self, Box<dyn std::error::Error>> {
         let listener_forward = TcpListener::bind(SocketAddr::new(
             IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
             listen_port,
@@ -79,11 +78,4 @@ impl TcpProxy {
 
         Ok(Self { forward_thread })
     }
-}
-
-/// Possible error if we socket address fails to bind (for local connection)
-#[derive(Error, Debug)]
-pub enum ProxyError {
-    #[error("Failed to bind to socket address")]
-    BindError(#[from] std::io::Error),
 }

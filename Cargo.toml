@@ -1,7 +1,7 @@
 [package]
 name = "basic_tcp_proxy"
 description = "Simple synchronous TCP proxy crate for forwarding TCP connections"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["James McMurray <jamesmcm03@gmail.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
@@ -11,4 +11,3 @@ homepage = "https://github.com/jamesmcm/basic_tcp_proxy"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-thiserror = "1.0.21"
