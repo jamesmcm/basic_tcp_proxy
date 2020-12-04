@@ -14,11 +14,17 @@ pub struct TcpProxy {
 impl TcpProxy {
     /// Create a new TCP proxy, binding to listen_port and forwarding and receiving traffic from
     /// proxy_to
-    pub fn new(listen_port: u16, proxy_to: SocketAddr) -> Result<Self, Box<dyn std::error::Error>> {
-        let listener_forward = TcpListener::bind(SocketAddr::new(
-            IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
-            listen_port,
-        ))?;
+    pub fn new(
+        listen_port: u16,
+        proxy_to: SocketAddr,
+        local_only: bool,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let ip = if local_only {
+            Ipv4Addr::new(127, 0, 0, 1)
+        } else {
+            Ipv4Addr::new(0, 0, 0, 0)
+        };
+        let listener_forward = TcpListener::bind(SocketAddr::new(IpAddr::V4(ip), listen_port))?;
 
         let forward_thread = std::thread::spawn(move || {
             loop {
