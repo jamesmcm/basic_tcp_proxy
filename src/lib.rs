@@ -1,7 +1,7 @@
 use log::debug;
 use std::io::{BufRead, BufReader, Write};
 use std::net::SocketAddr;
-use std::net::{IpAddr, Ipv4Addr};
+use std::net::{IpAddr, Ipv6Addr};
 use std::net::{TcpListener, TcpStream};
 
 /// TcpProxy runs one thread looping to accept new connections
@@ -20,11 +20,11 @@ impl TcpProxy {
         local_only: bool,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let ip = if local_only {
-            Ipv4Addr::new(127, 0, 0, 1)
+            Ipv6Addr::LOCALHOST
         } else {
-            Ipv4Addr::new(0, 0, 0, 0)
+            Ipv6Addr::UNSPECIFIED
         };
-        let listener_forward = TcpListener::bind(SocketAddr::new(IpAddr::V4(ip), listen_port))?;
+        let listener_forward = TcpListener::bind(SocketAddr::new(IpAddr::V6(ip), listen_port))?;
 
         let forward_thread = std::thread::spawn(move || {
             loop {
