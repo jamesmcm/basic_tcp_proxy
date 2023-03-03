@@ -42,15 +42,18 @@ impl TcpProxy {
                     let mut stream_forward = BufReader::new(stream_forward);
                     loop {
                         let length = {
-                            let buffer = stream_forward.fill_buf().unwrap();
+                            let buffer = stream_forward.fill_buf();
+
+                            let buffer = buffer.unwrap_or_default();
                             let length = buffer.len();
                             if buffer.is_empty() {
                                 // Connection closed
                                 debug!("Client closed connection");
                                 return;
                             }
+
                             sender_forward
-                                .write_all(&buffer)
+                                .write_all(buffer)
                                 .expect("Failed to write to remote");
                             sender_forward.flush().expect("Failed to flush remote");
                             length
@@ -63,14 +66,14 @@ impl TcpProxy {
                     let mut sender_backward = BufReader::new(sender_backward);
                     loop {
                         let length = {
-                            let buffer = sender_backward.fill_buf().unwrap();
+                            let buffer = sender_backward.fill_buf().unwrap_or_default();
                             let length = buffer.len();
                             if buffer.is_empty() {
                                 // Connection closed
                                 debug!("Remote closed connection");
                                 return;
                             }
-                            if stream_backward.write_all(&buffer).is_err() {
+                            if stream_backward.write_all(buffer).is_err() {
                                 // Connection closed
                                 debug!("Client closed connection");
                                 return;
