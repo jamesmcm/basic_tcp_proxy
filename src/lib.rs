@@ -52,9 +52,11 @@ impl TcpProxy {
                                 return;
                             }
 
-                            sender_forward
-                                .write_all(buffer)
-                                .expect("Failed to write to remote");
+                            if sender_forward.write_all(buffer).is_err() {
+                                // Connection closed
+                                debug!("Remote closed connection");
+                                return;
+                            }
                             sender_forward.flush().expect("Failed to flush remote");
                             length
                         };
