@@ -13,7 +13,7 @@ Example forwarding 127.0.0.1:2000 to 127.0.0.1:4000
 use basic_tcp_proxy::TcpProxy;
 
 fn main() {
-    let proxy = TcpProxy::new(2000, "127.0.0.1:4000".parse().unwrap());
+    let proxy = TcpProxy::new(2000, "127.0.0.1:4000".parse().unwrap(), false);
     loop {}
 }
 ```
